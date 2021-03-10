@@ -59,9 +59,7 @@ dns:
   safesearch_cache_size: 1048576
   parental_cache_size: 1048576
   cache_time: 30
-  rewrites:
-  - domain: wing.com
-    answer: 172.168.2.104
+  rewrites: []
   blocked_services: []
   customresolver: null
 tls:
