@@ -59,7 +59,9 @@ dns:
   safesearch_cache_size: 1048576
   parental_cache_size: 1048576
   cache_time: 30
-  rewrites: []
+  rewrites:
+  - domain: wing.com
+    answer: 172.168.2.104
   blocked_services: []
   customresolver: null
 tls:
@@ -81,19 +83,19 @@ filters:
 - enabled: true
   url: https://easylist.to/easylist/easylist.txt
   name: easylist
-  id: 1615024080
+  id: 1
 - enabled: true
   url: https://raw.githubusercontent.com/cjx82630/cjxlist/master/cjx-annoyance.txt
   name: Easylistchina
-  id: 1615024081
+  id: 2
 - enabled: true
   url: https://cdn.jsdelivr.net/gh/neoFelhz/neohosts@gh-pages/basic/hosts
   name: CJX Annoyance
-  id: 1615024082
+  id: 3
 - enabled: true
   url: https://easylist-downloads.adblockplus.org/easyprivacy.txt
   name: NeoHosts
-  id: 1615024083
+  id: 4
 whitelist_filters: []
 user_rules: []
 dhcp:
