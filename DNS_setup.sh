@@ -84,7 +84,7 @@ echo "【提示】ChinaDNS-NG安装完成"
 
 echo "【提示】开始部署AdGuardHome"
 curl -sSL https://raw.githubusercontent.com/AdguardTeam/AdGuardHome/master/scripts/install.sh | sh
-
+mkdir /opt/AdGuardHome/data/filters
 wget -qO /opt/AdGuardHome/AdGuardHome.yaml https://github.com/lurenJBD/CentOS_DNS_Server_deployment_script/raw/main/AdGuardHome/AdGuardHome.yaml
 wget -qO /opt/AdGuardHome/data/filters/1.txt https://easylist.to/easylist/easylist.txt
 wget -qO /opt/AdGuardHome/data/filters/2.txt https://raw.githubusercontent.com/cjx82630/cjxlist/master/cjx-annoyance.txt
