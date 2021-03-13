@@ -84,6 +84,8 @@ echo "【提示】ChinaDNS-NG安装完成"
 
 echo "【提示】开始部署AdGuardHome"
 curl -sSL https://raw.githubusercontent.com/AdguardTeam/AdGuardHome/master/scripts/install.sh | sh
+mkdir /opt/AdGuardHome
+mkdir /opt/AdGuardHome/data
 mkdir /opt/AdGuardHome/data/filters
 wget -qO /opt/AdGuardHome/AdGuardHome.yaml https://github.com/lurenJBD/CentOS_DNS_Server_deployment_script/raw/main/AdGuardHome/AdGuardHome.yaml
 wget -qO /opt/AdGuardHome/data/filters/1.txt https://easylist.to/easylist/easylist.txt
@@ -91,21 +93,25 @@ wget -qO /opt/AdGuardHome/data/filters/2.txt https://raw.githubusercontent.com/c
 wget -qO /opt/AdGuardHome/data/filters/3.txt https://cdn.jsdelivr.net/gh/neoFelhz/neohosts@gh-pages/basic/hosts
 wget -qO /opt/AdGuardHome/data/filters/4.txt https://easylist-downloads.adblockplus.org/easyprivacy.txt
 
-
-
 firewall-cmd --zone=public --add-port=3000/tcp --permanent
 firewall-cmd --zone=public --add-port=53/tcp --permanent
 firewall-cmd --zone=public --add-port=53/udp --permanent
 systemctl restart firewalld
 echo "【提示】已开放防火墙53，3000端口"
-dnsmasq=$(netstat -anp | grep dnsmasq | head -n 1)
-if [ "$dnsmasq" != "" ];then
-pkill dnsmasq
-chkconfig dnsmasq off
-fi
+#dnsmasq=$(netstat -anp | grep dnsmasq | head -n 1)
+#if [ "$dnsmasq" != "" ];then
+#pkill dnsmasq
+#chkconfig dnsmasq off                                    
+#fi
+sed -i "58cno-resolv" /etc/dnsmasq.conf
+sed -i "59cserver=127.0.0.1#5353" /etc/dnsmasq.conf
 
-/opt/AdGuardHome/AdGuardHome -s start
-/opt/AdGuardHome/AdGuardHome &
+systemctl enable AdGuardHome
+systemctl start AdGuardHome
+
+#/opt/AdGuardHome/AdGuardHome -s start
+#/opt/AdGuardHome/AdGuardHome &
 echo "【提示】AdGuardHome管理账户：admin，密码：admin"
 
 echo "【提示】AdGuardHome安装完成"
+echo "【提示】一键部署DNS服务脚本已执行完成，请重启系统"
