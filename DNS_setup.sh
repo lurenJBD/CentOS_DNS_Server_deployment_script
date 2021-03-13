@@ -1,25 +1,28 @@
 #!/bin/sh
-echo "【提示】开始部署SmartDNS"
-cd ~
-wget -q https://github.com/pymumu/smartdns/releases/download/Release33/smartdns.1.2020.09.08-2235.x86_64-linux-all.tar.gz
-tar zxf smartdns.1.2020.09.08-2235.x86_64-linux-all.tar.gz
-cd smartdns
-chmod +x ./install
-./install -i >>/dev/null && echo "【提示】SmartDNS安装完成"
-cd .. && rm -f smartdns*.tar.gz && rm -rf smartdns &&  echo "【提示】已清理缓存文件"
+if [ -z "$(command -v smartdns)" ];then
+    echo "【提示】开始部署SmartDNS"
+    cd ~
+    wget -q https://github.com/pymumu/smartdns/releases/download/Release33/smartdns.1.2020.09.08-2235.x86_64-linux-all.tar.gz
+    tar zxf smartdns.1.2020.09.08-2235.x86_64-linux-all.tar.gz
+    cd smartdns
+    chmod +x ./install
+    ./install -i >>/dev/null && echo "【提示】SmartDNS安装完成"
+    cd .. && rm -f smartdns*.tar.gz && rm -rf smartdns &&  echo "【提示】已清理缓存文件"
 
-urls=(https://github.com/lurenJBD/CentOS_DNS_Server_deployment_script/raw/main/SmartDNS/smartdns.conf https://cdn.jsdelivr.net/gh/lurenJBD/CentOS_DNS_Server_deployment_script@main/SmartDNS/smartdns.conf https://cdn.staticaly.com/gh/lurenJBD/CentOS_DNS_Server_deployment_script/main/SmartDNS/smartdns.conf)
-for url in ${urls[@]};
-do
-    wget -q --spider $url && wget -qO /etc/smartdns/smartdns.conf $url && { echo "【提示】SmartDNS配置文件下载成功"; break; }
-done
-echo "【提示】SmartDNS配置放在/etc/smartdns/ 下"
+    urls=(https://github.com/lurenJBD/CentOS_DNS_Server_deployment_script/raw/main/SmartDNS/smartdns.conf https://cdn.jsdelivr.net/gh/lurenJBD/CentOS_DNS_Server_deployment_script@main/SmartDNS/smartdns.conf https://cdn.staticaly.com/gh/lurenJBD/CentOS_DNS_Server_deployment_script/main/SmartDNS/smartdns.conf)
+    for url in ${urls[@]};
+    do
+        wget -q --spider $url && wget -qO /etc/smartdns/smartdns.conf $url && { echo "【提示】SmartDNS配置文件下载成功"; break; }
+    done
+    echo "【提示】SmartDNS配置放在/etc/smartdns/ 下"
+    systemctl enable smartdns
+    systemctl start smartdns
+    echo "【提示】SmartDNS安装完成"
+else
+    echo "【提示】检测到SmartDNS已安装，不再重复安装"
+fi
 
-systemctl enable smartdns
-systemctl start smartdns
-
-echo "【提示】SmartDNS安装完成"
-
+if [ -z "$(command -v chinadns-ng)" ];then
 echo "【提示】开始部署ChinaDNS-NG"
 yum  install -y git make gcc supervisor
 cd /opt
@@ -81,7 +84,11 @@ systemctl enable supervisor
 systemctl start supervisor
 
 echo "【提示】ChinaDNS-NG安装完成"
+else
+    echo "【提示】检测到ChinaDNS-NG已安装，不再重复安装"
+fi
 
+if [ -z "$(command -v /opt/AdGuardHome/AdGuardHome)" ];then
 echo "【提示】开始部署AdGuardHome"
 curl -sSL https://raw.githubusercontent.com/AdguardTeam/AdGuardHome/master/scripts/install.sh | sh
 mkdir /opt/AdGuardHome
@@ -114,4 +121,8 @@ systemctl start AdGuardHome
 echo "【提示】AdGuardHome管理账户：admin，密码：admin"
 
 echo "【提示】AdGuardHome安装完成"
+else
+    echo "【提示】检测到AdGuardHome已安装，不再重复安装"
+fi
+
 echo "【提示】一键部署DNS服务脚本已执行完成，请重启系统"
