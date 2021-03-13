@@ -105,13 +105,14 @@ firewall-cmd --zone=public --add-port=53/tcp --permanent
 firewall-cmd --zone=public --add-port=53/udp --permanent
 systemctl restart firewalld
 echo "【提示】已开放防火墙53，3000端口"
+systemctl disable dnsmasq.service
 #dnsmasq=$(netstat -anp | grep dnsmasq | head -n 1)
 #if [ "$dnsmasq" != "" ];then
 #pkill dnsmasq
 #chkconfig dnsmasq off                                    
 #fi
-sed -i "58cno-resolv" /etc/dnsmasq.conf
-sed -i "59cserver=127.0.0.1#5353" /etc/dnsmasq.conf
+#sed -i "58cno-resolv" /etc/dnsmasq.conf
+#sed -i "59cserver=127.0.0.1#5353" /etc/dnsmasq.conf
 
 systemctl enable AdGuardHome
 systemctl start AdGuardHome
