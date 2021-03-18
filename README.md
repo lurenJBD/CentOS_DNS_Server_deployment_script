@@ -9,5 +9,8 @@
 
 # 如何使用
 运行命令
+
 `wget -qO- https://raw.githubusercontent.com/lurenJBD/CentOS_DNS_Server_deployment_script/main/DNS_setup.sh | bash `
 
+关系结构图
+![image](https://user-images.githubusercontent.com/31967654/111603435-51037480-880f-11eb-95ec-fcde89af4bc5.png)
