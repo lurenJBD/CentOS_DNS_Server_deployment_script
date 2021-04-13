@@ -5,12 +5,13 @@
 - 部署并配置SmartDNS
 - 部署并配置ChinaDNS-NG，配合Supervisor实现开机启动
 - 部署并配置AdGuardHome
-无需再手动对各个DNS服务进行配置，已提前将配置文件放置再Github中，欢迎检查
+无需再手动对各个DNS服务进行配置，已提前将AdGuard配置文件放置再Github中
+- 使用CDN网站解决Github下载文件缓慢的问题
 
 # 如何使用
 运行命令
 
-`wget -qO- https://raw.githubusercontent.com/lurenJBD/CentOS_DNS_Server_deployment_script/main/DNS_setup.sh | bash `
+`wget -qO DNS_setup.sh https://raw.githubusercontent.com/lurenJBD/CentOS_DNS_Server_deployment_script/main/DNS_setup.sh && bash DNS_setup.sh `
 
 关系结构图
 ![image](https://user-images.githubusercontent.com/31967654/111603435-51037480-880f-11eb-95ec-fcde89af4bc5.png)
