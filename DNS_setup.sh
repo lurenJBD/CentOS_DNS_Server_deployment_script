@@ -1,18 +1,55 @@
 #!/bin/sh
+user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.66 Safari/537.36'
+linux_version=$(cat /etc/redhat-release | awk -F ' ' '{print $4}'| awk -F '.' '{print $1}') 
+[ -z "$linux_version" ] && echo "【提示】暂时不支持非CentOS系统" && exit 0
+
+yn_error (){
+    echo -e "\033[31mWARNING 只能输入 [Y/N]\033[0m"
+}
+
+if [ "$linux_version" == 8 ];then
+    echo "当前系统为CentOS8，经过测试支持使用本脚本"
+else
+    echo "当前系统为CentOS$linux_version，暂未作测试，不保证能运行正常"
+fi
+while :; do
+read -p "是否继续安装？[Y/N] " var
+case $var in
+    [yY])
+        break;;
+    [nN]|"")
+        exit 0;;
+    *)
+        yn_error
+        continue;;
+esac
+done
+
 if [ -z "$(command -v smartdns)" ];then
     echo "【提示】开始部署SmartDNS"
     cd ~
-    wget -q https://github.com/pymumu/smartdns/releases/download/Release33/smartdns.1.2020.09.08-2235.x86_64-linux-all.tar.gz
-    tar zxf smartdns.1.2020.09.08-2235.x86_64-linux-all.tar.gz
+    tag="$( wget -T 5 -t 3 --user-agent "$user_agent" --max-redirect=0 --output-document=-  https://github.com/pymumu/smartdns/releases/latest  2>&1 | grep releases/tag | awk -F '/' '{print $NF}' | awk -F ' ' '{print $1}' )" ; [ -z "$tag" ] && echo $tag
+    file_name="$( wget -T 5 -t 3 --user-agent "$user_agent" -q --output-document=-  https://github.com/pymumu/smartdns/releases/latest  2>&1 | grep '<a href="/pymumu/smartdns/releases/download/' | awk -F '/' '{print $NF}' | awk -F '"' '{print $1}' | grep 'x86_64-linux-all.tar.gz')"
+	[[ -z $tag || -z $file_name ]] && tag=Release33 && file_name=smartdns.1.2020.09.08-2235.x86_64-linux-all.tar.gz && echo "获取最新版本信息失败，将安装旧版！"
+    
+
+    version=$( echo $file_name | awk -F 'smartdns.' '{print $2}'| awk -F '.x86_64' '{print $1}' )
+    echo "【提示】准备安装的版本为$version"
+    urls=(https://download.fastgit.org/pymumu/smartdns/releases/download https://cdn.jsdelivr.net/gh/pymumu/smartdns/releases/download https://github.com/pymumu/smartdns/releases/download)
+    for url in ${urls[@]};
+    do
+    wget -q --spider $urls/$tag/$file_name && wget -qO- $urls/$tag/$file_name | tar zx && { echo "【提示】SmartDNS二进制文件下载成功"; break; }
+    done
+    
     cd smartdns
     chmod +x ./install
     ./install -i >>/dev/null && echo "【提示】SmartDNS安装完成"
     cd .. && rm -f smartdns*.tar.gz && rm -rf smartdns &&  echo "【提示】已清理缓存文件"
 
-    urls=(https://github.com/lurenJBD/CentOS_DNS_Server_deployment_script/raw/main/SmartDNS/smartdns.conf https://cdn.jsdelivr.net/gh/lurenJBD/CentOS_DNS_Server_deployment_script@main/SmartDNS/smartdns.conf https://cdn.staticaly.com/gh/lurenJBD/CentOS_DNS_Server_deployment_script/main/SmartDNS/smartdns.conf)
+    urls=(https://github.com/lurenJBD/CentOS_DNS_Server_deployment_script/raw/main https://cdn.jsdelivr.net/gh/lurenJBD/CentOS_DNS_Server_deployment_script@main https://cdn.staticaly.com/gh/lurenJBD/CentOS_DNS_Server_deployment_script/main)
     for url in ${urls[@]};
     do
-        wget -q --spider $url && wget -qO /etc/smartdns/smartdns.conf $url && { echo "【提示】SmartDNS配置文件下载成功"; break; }
+        wget -q --spider $url/SmartDNS/smartdns.conf && wget -T 5 -qO /etc/smartdns/smartdns.conf $url/SmartDNS/smartdns.conf && { echo "【提示】SmartDNS配置文件下载成功"; break; }
     done
     echo "【提示】SmartDNS配置放在/etc/smartdns/ 下"
     systemctl enable smartdns
@@ -91,7 +128,7 @@ fi
 if [ -z "$(command -v /opt/AdGuardHome/AdGuardHome)" ];then
 echo "【提示】开始部署AdGuardHome"
 curl -sSL https://raw.githubusercontent.com/AdguardTeam/AdGuardHome/master/scripts/install.sh | sh
-mkdir /opt/AdGuardHome
+#mkdir /opt/AdGuardHome
 mkdir /opt/AdGuardHome/data
 mkdir /opt/AdGuardHome/data/filters
 wget -qO /opt/AdGuardHome/AdGuardHome.yaml https://github.com/lurenJBD/CentOS_DNS_Server_deployment_script/raw/main/AdGuardHome/AdGuardHome.yaml
@@ -105,7 +142,9 @@ firewall-cmd --zone=public --add-port=53/tcp --permanent
 firewall-cmd --zone=public --add-port=53/udp --permanent
 systemctl restart firewalld
 echo "【提示】已开放防火墙53，3000端口"
-systemctl disable dnsmasq.service
+systemctl disable dnsmasq
+systemctl stop dnsmasq
+pkill dnsmasq
 #dnsmasq=$(netstat -anp | grep dnsmasq | head -n 1)
 #if [ "$dnsmasq" != "" ];then
 #pkill dnsmasq
@@ -118,7 +157,7 @@ systemctl enable AdGuardHome
 systemctl start AdGuardHome
 
 #/opt/AdGuardHome/AdGuardHome -s start
-#/opt/AdGuardHome/AdGuardHome &
+/opt/AdGuardHome/AdGuardHome &
 echo "【提示】AdGuardHome管理账户：admin，密码：admin"
 
 echo "【提示】AdGuardHome安装完成"
