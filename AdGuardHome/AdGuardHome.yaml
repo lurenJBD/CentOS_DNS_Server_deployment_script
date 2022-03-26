@@ -3,7 +3,7 @@ bind_port: 3000
 beta_bind_port: 0
 users:
 - name: admin
-  password: $2a$10$.zjhIkaNPrlyPEQOoDch6.sNL4TnxgbcdZt3qhmjQWSC.UTnTNL9i
+  password: []
 http_proxy: ""
 language: zh-cn
 rlimit_nofile: 0
@@ -59,9 +59,7 @@ dns:
   safesearch_cache_size: 1048576
   parental_cache_size: 1048576
   cache_time: 30
-  rewrites:
-  - domain: wing.com
-    answer: 172.168.2.104
+  rewrites: []
   blocked_services: []
   customresolver: null
 tls:
